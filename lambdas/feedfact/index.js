@@ -96,14 +96,15 @@ exports.handler = (event, context, callback) => {
             }, done);
             break;
         case 'POST':
-            //dynamo.putItem(JSON.parse(event.body), function(){});
+            var ranking = JSON.parse(event.body);
+            ranking.Item.apikey = event.headers['x-api-key'];
+            dynamo.putItem(ranking, function(){});
             dynamo.getItem({
                TableName: "Articles",
                Key :{ "url" : JSON.parse(event.body).Item.url}
             },
             function(err,res) {
                 var body = JSON.parse(event.body);
-                console.log(body);
                 if (err) { done(err,res); }
                 else if (res && res.Item && res.Item.url) {
                     //res.Item.rankings.a = incr(body.Item.ranking.a.value,res.Item.rankings.a);
