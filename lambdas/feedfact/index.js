@@ -90,23 +90,24 @@ exports.handler = (event, context, callback) => {
         case 'GET':
             dynamo.getItem({
                 Key : {
-                    "url": event.queryStringParameters.url
+                    "title": event.queryStringParameters.title
                 },
                 TableName: event.queryStringParameters.TableName
             }, done);
             break;
         case 'POST':
             var ranking = JSON.parse(event.body);
+            console.log(event);
             ranking.Item.apikey = event.headers['x-api-key'];
             dynamo.putItem(ranking, function(){});
             dynamo.getItem({
                TableName: "Articles",
-               Key :{ "url" : JSON.parse(event.body).Item.url}
+               Key :{ "title" : JSON.parse(event.body).Item.title}
             },
             function(err,res) {
                 var body = JSON.parse(event.body);
                 if (err) { done(err,res); }
-                else if (res && res.Item && res.Item.url) {
+                else if (res && res.Item && res.Item.title) {
                     //res.Item.rankings.a = incr(body.Item.ranking.a.value,res.Item.rankings.a);
                     res.Item.rankings = incr_rank(body.Item.ranking,res.Item.rankings);
                     dynamo.putItem({
@@ -119,6 +120,7 @@ exports.handler = (event, context, callback) => {
                     dynamo.putItem({
                         TableName : "Articles",
                         Item : {
+                            "title" : body.Item.title,
                             "url" : body.Item.url,
                             "rankings" : rnk
                         }
