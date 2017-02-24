@@ -76,7 +76,7 @@ exports.handler = (event, context, callback) => {
 
     const doneget = (err, res) => {
 
-      console.log("apikey:"+event.headers['x-api-key']+":event:"+event.httpMethod+":match:"+(res.Item ? 1 : 0)+":title:"+event.queryStringParameters.title);
+      console.log("apikey||"+event.headers['x-api-key']+"||event||"+event.httpMethod+"||match||"+(res.Item ? 1 : 0)+"||title||"+event.queryStringParameters.title);
       callback(null, {
         statusCode: err ? '400' : '200',
         body: err ? err.message : JSON.stringify(res),
