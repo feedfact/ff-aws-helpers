@@ -1,6 +1,5 @@
 'use strict';
 
-console.log('Loading function feedfact v1');
 
 const doc = require('dynamodb-doc');
 
@@ -75,13 +74,27 @@ var initialRank ={
 exports.handler = (event, context, callback) => {
     //console.log('Received event:', JSON.stringify(event, null, 2));
 
-    const done = (err, res) => callback(null, {
+    const doneget = (err, res) => {
+
+      console.log("apikey:"+event.headers['x-api-key']+":event:"+event.httpMethod+":match:"+(res.Item ? 1 : 0)+":title:"+event.queryStringParameters.title);
+      callback(null, {
         statusCode: err ? '400' : '200',
         body: err ? err.message : JSON.stringify(res),
         headers: {
             'Content-Type': 'application/json',
         },
-    });
+      });
+    }
+
+    const done = (err, res) => {
+      callback(null, {
+        statusCode: err ? '400' : '200',
+        body: err ? err.message : JSON.stringify(res),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+      });
+    }
 
     switch (event.httpMethod) {
         case 'DELETE':
@@ -93,11 +106,10 @@ exports.handler = (event, context, callback) => {
                     "title": event.queryStringParameters.title
                 },
                 TableName: event.queryStringParameters.TableName
-            }, done);
+            }, doneget);
             break;
         case 'POST':
             var ranking = JSON.parse(event.body);
-            console.log(event);
             ranking.Item.apikey = event.headers['x-api-key'];
             dynamo.putItem(ranking, function(){});
             dynamo.getItem({
